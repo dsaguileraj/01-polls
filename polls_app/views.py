@@ -1,10 +1,13 @@
 from typing import Any
 from django.db.models.query import QuerySet
+from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import F
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
+from django.utils import timezone
 from django.views import generic
 from .models import Question, Choice
+from .forms import CreateQuestion
 
 
 class IndexView(generic.ListView):
@@ -22,21 +25,6 @@ class ResultsView(generic.DetailView):
     model = Question
     template_name = "polls/results.html"
     
-# def index(request):
-#     lastest_question_list = Question.objects.order_by('pub_date')[:5]
-#     context = {"lastest_question_list": lastest_question_list}
-#     return render(request, 'polls/index.html', context)
-
-
-# def detail(request, question_id):
-#     question = get_object_or_404(Question, pk=question_id)
-#     return render(request, 'polls/detail.html', {'question': question})
-
-
-# def results(request, question_id):
-#     question = get_object_or_404(Question, pk=question_id)
-#     return render(request, "polls/results.html", {"question": question})
-
 
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
@@ -55,3 +43,16 @@ def vote(request, question_id):
         selected_choice.votes = F("votes") + 1
         selected_choice.save()
         return redirect(reverse("polls:results", args=(question_id,)))
+
+
+def post(request):
+    if request.method == "POST":
+        form = CreateQuestion(request.POST)
+        if form.is_valid():
+            Question.objects.create(question_text = request.POST["question_text"], pub_date = timezone.now())
+            return redirect(reverse_lazy("polls:index"))
+
+    context = {
+        "form": CreateQuestion(),
+    }
+    return render(request, "polls/post.html", context)
