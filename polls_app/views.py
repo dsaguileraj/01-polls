@@ -17,14 +17,16 @@ class IndexView(generic.ListView):
     def get_queryset(self):
         return Question.objects.order_by("pub_date")[:5]
 
+
 class DetailView(generic.DetailView):
     model = Question
     template_name = "polls/detail.html"
-    
+
+
 class ResultsView(generic.DetailView):
     model = Question
     template_name = "polls/results.html"
-    
+
 
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
@@ -45,14 +47,20 @@ def vote(request, question_id):
         return redirect(reverse("polls:results", args=(question_id,)))
 
 
-def post(request):
+def post_question(request):
     if request.method == "POST":
         form = CreateQuestion(request.POST)
         if form.is_valid():
-            Question.objects.create(question_text = request.POST["question_text"], pub_date = timezone.now())
+            Question.objects.create(
+                question_text=request.POST["question_text"], pub_date=timezone.now())
             return redirect(reverse_lazy("polls:index"))
 
     context = {
         "form": CreateQuestion(),
     }
     return render(request, "polls/post.html", context)
+
+def delete_question(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    question.delete()
+    return redirect(reverse_lazy("polls:index"))

@@ -1,6 +1,6 @@
 <h1>Create Question</h1>
 
-<form action="{% url 'polls:post' %}" method="POST">
+<form action="{% url 'polls:post_question' %}" method="POST">
   {% csrf_token %}
   {{ form.as_p }}
   <button type="submit">Enviar</button>
