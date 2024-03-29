@@ -1,0 +1,7 @@
+<h1>Create Choice</h1>
+
+<form action="{% url 'polls:create_choice' %}" method="POST">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <input type="submit" value="Save" />
+</form>
